@@ -1,0 +1,25 @@
+# Same as requirements.txt but CUDA 12.1 build
+torch==2.2.0+cu121
+torchvision==0.17.0+cu121
+--extra-index-url https://download.pytorch.org/whl/cu121
+
+# All other packages identical to requirements.txt
+numpy==1.26.4
+pandas==2.2.0
+scikit-learn==1.4.0
+matplotlib==3.8.2
+seaborn==0.13.2
+pillow==10.2.0
+opencv-python==4.9.0.80
+albumentations==1.3.1
+tqdm==4.66.1
+pyyaml==6.0.1
+timm==0.9.16
+einops==0.7.0
+grad-cam==1.5.0
+shap==0.44.0
+umap-learn==0.5.5
+plotly==5.18.0
+torchmetrics==1.3.0
+rich==13.7.0
+wandb==0.16.3

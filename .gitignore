@@ -1,0 +1,29 @@
+# Data (too large for git)
+data/raw/
+data/processed/
+data/combined/
+
+# Checkpoints
+checkpoints/
+
+# Generated outputs
+outputs/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+cervisense_env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Colab
+*.ipynb_checkpoints
+
+# System
+.DS_Store
+Thumbs.db

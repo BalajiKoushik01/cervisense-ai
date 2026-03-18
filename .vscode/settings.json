@@ -1,0 +1,55 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.python",
+    "editor.formatOnSave": true
+  },
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": true,
+  "python.linting.pylintArgs": [
+    "--disable=C0114,C0115,C0116,R0903",
+    "--max-line-length=100"
+  ],
+  "errorLens.enabledDiagnosticLevels": ["error", "warning", "info"],
+  "errorLens.followCursor": "allLines",
+  "errorLens.fontWeight": "bold",
+  "sonarlint.connectedMode.connections.sonarcloud": [],
+  "sonarlint.rules": {
+    "python:S5042": { "level": "on" },
+    "python:S108": { "level": "on" },
+    "python:S1192": { "level": "on" }
+  },
+  "gitlens.hovers.currentLine.over": "line",
+  "gitlens.codeLens.enabled": true,
+  "todo-tree.highlights.enabled": true,
+  "todo-tree.general.tags": ["TODO", "FIXME", "HACK", "BUG", "NOTE", "TRAIN"],
+  "todo-tree.highlights.customHighlight": {
+    "TRAIN": {
+      "icon": "flame",
+      "foreground": "#FF6B00",
+      "background": "#1A1A2E",
+      "type": "tag"
+    },
+    "BUG": {
+      "icon": "bug",
+      "foreground": "#FF0000"
+    }
+  },
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "venv": true,
+    "cervisense_env": true
+  },
+  "search.exclude": {
+    "data/**": true,
+    "checkpoints/**": true,
+    "outputs/**": true,
+    "venv/**": true
+  },
+  "python.analysis.typeCheckingMode": "basic",
+  "pieces.telemetry": false,
+  "snyk.yesWelcomeNotification": true,
+  "snyk.advanced.autoScanOssAtStartup": false
+}
