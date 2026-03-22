@@ -98,9 +98,11 @@ def main():
         print(f"Resumed from epoch {start_epoch}")
 
     console = Console()
-    with open(config['logging']['csv_log'], 'w', newline='') as f:
+    mode = 'a' if start_epoch > 0 else 'w'
+    with open(config['logging']['csv_log'], mode, newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(['epoch', 'loss', 'lr', 'gpu_mem_mb'])
+        if start_epoch == 0:
+            writer.writerow(['epoch', 'loss', 'lr', 'gpu_mem_mb'])
 
     for epoch in range(start_epoch, epochs):
         start_time = time.time()
