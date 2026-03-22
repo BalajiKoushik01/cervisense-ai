@@ -1,0 +1,35 @@
+model:
+  colpo_checkpoint: checkpoints/finetune/best_finetune_colpo.pth
+  histo_checkpoint: checkpoints/finetune/best_finetune_histo.pth
+  num_classes: 5
+  attention_heads: 8
+  feature_dim: 1280
+
+data:
+  colpo_dir: data/combined/supervised/val
+  histo_dir: data/combined/supervised/val  
+  num_workers: 0
+
+training:
+  epochs: 40
+  batch_size: 4
+  encoder_lr: 1e-5
+  fusion_lr: 3e-4
+  freeze_encoder_epochs: 10
+  early_stop_patience: 10
+
+hardware:
+  mixed_precision: true
+  gradient_accumulation_steps: 4
+
+loss:
+  type: focal
+  alpha: 0.25
+  gamma: 2.0
+
+checkpointing:
+  save_dir: checkpoints/fusion
+  metric: val_macro_f1
+
+logging:
+  csv_log: outputs/fusion_training_log.csv

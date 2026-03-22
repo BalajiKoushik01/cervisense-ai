@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software in your research, please cite it using the following metadata."
+authors:
+  - family-names: "Koushik"
+    given-names: "Balaji"
+title: "CerviSense-AI: Self-Supervised Cross-Modal Fusion for Cervical Cancer Diagnostics"
+version: 1.0.0
+date-released: "2026-03-18"
+url: "https://github.com/BalajiKoushik01/cervisense-ai"
+repository-code: "https://github.com/BalajiKoushik01/cervisense-ai"
+license: "MIT"
+keywords:
+  - cervical-cancer
+  - self-supervised-learning
+  - deep-learning
+  - cross-modal-fusion
+  - medical-imaging
+  - pytorch
+  - explainable-ai

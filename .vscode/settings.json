@@ -5,6 +5,10 @@
     "editor.defaultFormatter": "ms-python.python",
     "editor.formatOnSave": true
   },
+  "python.defaultInterpreterPath": "${workspaceFolder}/cervisense_env/Scripts/python.exe",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}"
+  ],
   "python.linting.enabled": true,
   "python.linting.pylintEnabled": true,
   "python.linting.pylintArgs": [
