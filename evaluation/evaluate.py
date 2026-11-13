@@ -22,15 +22,15 @@ def main():
     encoder = CerviSenseEncoder(pretrained=False, embedding_dim=512)
     model = CerviSenseClassifier(encoder, num_classes=5, dropout=0.0).to(device)
     
-    if os.path.exists(args.checkpoint):
-        state = torch.load(args.checkpoint, map_location=device)
-        model.load_state_dict(state)
-    else:
-        print("Checkpoint not found!")
-        return
+    if not os.path.isfile(args.checkpoint):
+        raise FileNotFoundError(f"Evaluation checkpoint is missing: {args.checkpoint}")
+    state = torch.load(args.checkpoint, map_location=device, weights_only=True)
+    model.load_state_dict(state, strict=True)
 
     model.eval()
     test_ds = CervicalSupervisedDataset(args.data_dir, transform=eval_augment)
+    if len(test_ds) == 0:
+        raise ValueError("Evaluation dataset is empty; cannot report metrics")
     nw = 0 if os.name == 'nt' else 4
     test_loader = DataLoader(test_ds, batch_size=32, shuffle=False, num_workers=nw)
 
