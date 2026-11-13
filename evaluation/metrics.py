@@ -1,41 +1,68 @@
+"""Strict, JSON-safe classification metrics for experimental image models.
+
+Do not interpret these metrics as clinical validation.
+"""
 import numpy as np
 from sklearn.metrics import (
-    precision_score, recall_score, f1_score, roc_auc_score, 
-    average_precision_score, accuracy_score, cohen_kappa_score, 
-    matthews_corrcoef, brier_score_loss, confusion_matrix
+    accuracy_score, cohen_kappa_score, confusion_matrix, f1_score,
+    matthews_corrcoef, roc_auc_score,
 )
-import json
+
 
 def compute_all_metrics(y_true, y_pred, y_probs, num_classes=5):
-    metrics = {}
-    
-    metrics['overall_accuracy'] = accuracy_score(y_true, y_pred)
-    metrics['macro_f1'] = f1_score(y_true, y_pred, average='macro')
-    metrics['micro_f1'] = f1_score(y_true, y_pred, average='micro')
-    metrics['weighted_f1'] = f1_score(y_true, y_pred, average='weighted')
-    metrics['cohen_kappa'] = cohen_kappa_score(y_true, y_pred)
-    metrics['mcc'] = matthews_corrcoef(y_true, y_pred)
-    
-    try:
-        metrics['macro_roc_auc'] = roc_auc_score(y_true, y_probs, multi_class='ovr', average='macro')
-    except:
-        metrics['macro_roc_auc'] = None
-        
-    metrics['per_class'] = {}
-    
-    cm = confusion_matrix(y_true, y_pred, labels=list(range(num_classes)))
-    for c in range(num_classes):
-        tp = cm[c, c]
-        fn = np.sum(cm[c, :]) - tp
-        fp = np.sum(cm[:, c]) - tp
-        tn = np.sum(cm) - (tp + fp + fn)
-        
-        metrics['per_class'][str(c)] = {
-            'tpr': float(tp / (tp + fn)) if (tp + fn) > 0 else 0,
-            'fpr': float(fp / (fp + tn)) if (fp + tn) > 0 else 0,
-            'fnr': float(fn / (fn + tp)) if (fn + tp) > 0 else 0,
-            'precision': float(tp / (tp + fp)) if (tp + fp) > 0 else 0,
-            'recall': float(tp / (tp + fn)) if (tp + fn) > 0 else 0,
+    true = np.asarray(y_true)
+    predicted = np.asarray(y_pred)
+    probs = np.asarray(y_probs, dtype=float)
+
+    if true.ndim != 1 or predicted.ndim != 1 or len(true) == 0 or len(true) != len(predicted):
+        raise ValueError("Labels and predictions must be non-empty, equally sized 1D arrays")
+    if probs.shape != (len(true), num_classes):
+        raise ValueError("Probability matrix must have (samples, num_classes) shape")
+    if not np.isfinite(probs).all() or np.any(probs < 0) or np.any(probs > 1):
+        raise ValueError("Probabilities must be finite and between zero and one")
+    if not np.allclose(probs.sum(axis=1), 1.0, rtol=1e-5, atol=1e-5):
+        raise ValueError("Each probability row must sum to one")
+    if np.any((true < 0) | (true >= num_classes)) or np.any((predicted < 0) | (predicted >= num_classes)):
+        raise ValueError("Class indices are outside the configured class range")
+
+    def finite_score(value):
+        number = float(value)
+        return number if np.isfinite(number) else None
+
+    result = {
+        "sample_count": int(len(true)),
+        "overall_accuracy": float(accuracy_score(true, predicted)),
+        "macro_f1": float(f1_score(true, predicted, labels=list(range(num_classes)), average="macro", zero_division=0)),
+        "micro_f1": float(f1_score(true, predicted, labels=list(range(num_classes)), average="micro", zero_division=0)),
+        "weighted_f1": float(f1_score(true, predicted, labels=list(range(num_classes)), average="weighted", zero_division=0)),
+        "cohen_kappa": finite_score(cohen_kappa_score(true, predicted)),
+        "mcc": finite_score(matthews_corrcoef(true, predicted)),
+        "macro_roc_auc": None,
+        "per_class": {},
+    }
+
+    # Multi-class ROC AUC requires every configured class in ground truth.
+    # A subset of observed labels must not be scored as a full cohort.
+    if len(np.unique(true)) == num_classes:
+        if num_classes == 2:
+            result["macro_roc_auc"] = float(roc_auc_score(true, probs[:, 1]))
+        else:
+            result["macro_roc_auc"] = float(roc_auc_score(true, probs, labels=list(range(num_classes)), multi_class="ovr", average="macro"))
+
+    cm = confusion_matrix(true, predicted, labels=list(range(num_classes)))
+    for cls in range(num_classes):
+        tp = int(cm[cls, cls])
+        fn = int(cm[cls, :].sum() - tp)
+        fp = int(cm[:, cls].sum() - tp)
+        tn = int(cm.sum() - (tp + fp + fn))
+        def ratio(n, d):
+            return float(n / d) if d else None
+        result["per_class"][str(cls)] = {
+            "support": int(tp + fn),
+            "tpr": ratio(tp, tp + fn),
+            "fpr": ratio(fp, fp + tn),
+            "fnr": ratio(fn, fn + tp),
+            "precision": ratio(tp, tp + fp),
+            "recall": ratio(tp, tp + fn),
         }
-        
-    return metrics
+    return result

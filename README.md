@@ -45,3 +45,7 @@ For Colab packaging, `scripts/export_to_colab.py` exists; review its hard-coded 
 Do not report accuracy or clinical benefit without a reproducible dataset definition, patient-level separation, external validation, confidence intervals and documented failure cases. Visual explanations such as saliency maps are not clinical evidence. Any use involving patient information also requires privacy, ethics and regulatory review.
 
 The repository's `CITATION.cff` and `CONTRIBUTING.md` provide attribution and contribution guidance.
+
+## Evaluation integrity
+
+The metrics implementation now validates probabilities, class shapes and label ranges; it returns JSON-native numeric values, reports per-class support, and marks rates undefined when denominators are zero rather than inventing zero sensitivity. Full multi-class ROC AUC is omitted if classes are absent from the evaluated sample. Tests use **synthetic labels**, not patients or clinical results. Evaluation refuses missing checkpoints and empty datasets. This remains research-only software.
