@@ -25,6 +25,13 @@ class MetricsTests(unittest.TestCase):
         self.assertIsNone(result["per_class"]["2"]["recall"])
         json.dumps(result, allow_nan=False)
 
+    def test_binary_auc_and_single_class_json(self):
+        binary = compute_all_metrics([0, 1], [0, 1], [[0.9, 0.1], [0.1, 0.9]], num_classes=2)
+        self.assertEqual(binary["macro_roc_auc"], 1.0)
+        single = compute_all_metrics([0, 0], [0, 0], [[1.0, 0.0], [1.0, 0.0]], num_classes=2)
+        self.assertIsNone(single["macro_roc_auc"])
+        json.dumps(single, allow_nan=False)
+
     def test_empty_and_nan_rejected(self):
         with self.assertRaises(ValueError):
             compute_all_metrics([], [], np.zeros((0, 2)), num_classes=2)

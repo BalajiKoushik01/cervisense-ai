@@ -25,14 +25,18 @@ def compute_all_metrics(y_true, y_pred, y_probs, num_classes=5):
     if np.any((true < 0) | (true >= num_classes)) or np.any((predicted < 0) | (predicted >= num_classes)):
         raise ValueError("Class indices are outside the configured class range")
 
+    def finite_score(value):
+        number = float(value)
+        return number if np.isfinite(number) else None
+
     result = {
         "sample_count": int(len(true)),
         "overall_accuracy": float(accuracy_score(true, predicted)),
         "macro_f1": float(f1_score(true, predicted, labels=list(range(num_classes)), average="macro", zero_division=0)),
         "micro_f1": float(f1_score(true, predicted, labels=list(range(num_classes)), average="micro", zero_division=0)),
         "weighted_f1": float(f1_score(true, predicted, labels=list(range(num_classes)), average="weighted", zero_division=0)),
-        "cohen_kappa": float(cohen_kappa_score(true, predicted)),
-        "mcc": float(matthews_corrcoef(true, predicted)),
+        "cohen_kappa": finite_score(cohen_kappa_score(true, predicted)),
+        "mcc": finite_score(matthews_corrcoef(true, predicted)),
         "macro_roc_auc": None,
         "per_class": {},
     }
@@ -40,7 +44,10 @@ def compute_all_metrics(y_true, y_pred, y_probs, num_classes=5):
     # Multi-class ROC AUC requires every configured class in ground truth.
     # A subset of observed labels must not be scored as a full cohort.
     if len(np.unique(true)) == num_classes:
-        result["macro_roc_auc"] = float(roc_auc_score(true, probs, labels=list(range(num_classes)), multi_class="ovr", average="macro"))
+        if num_classes == 2:
+            result["macro_roc_auc"] = float(roc_auc_score(true, probs[:, 1]))
+        else:
+            result["macro_roc_auc"] = float(roc_auc_score(true, probs, labels=list(range(num_classes)), multi_class="ovr", average="macro"))
 
     cm = confusion_matrix(true, predicted, labels=list(range(num_classes)))
     for cls in range(num_classes):
